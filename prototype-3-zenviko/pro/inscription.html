@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Devenir pro · Zenviko</title>
+<link rel="icon" href="../assets/icone.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body data-base="../">
+<div id="site-header"></div>
+<main class="wrap narrow" style="padding-top:24px;padding-bottom:40px">
+  <form class="stack" id="form" style="--gap:18px" novalidate>
+    <ol class="steps" id="steps">
+      <li class="on">1 · Toi</li>
+      <li>2 · Tes services</li>
+      <li>3 · Vérification</li>
+    </ol>
+
+    <!-- Étape 1 -->
+    <section class="stack step" data-step="1" style="--gap:16px">
+      <div class="stack" style="--gap:6px">
+        <h1 style="font-size:clamp(28px,5vw,38px)">Propose ton savoir-faire</h1>
+        <p class="muted">Gratuit. Une fois ta demande validée, tu reçois ton espace pro et ta page publique.</p>
+      </div>
+      <label class="field">Nom ou nom d’entreprise
+        <input data-required type="text" value="Marc Tremblay">
+        <span class="err">Indique ton nom.</span>
+      </label>
+      <div class="two">
+        <label class="field">Téléphone
+          <input data-required type="tel" value="819 555-0142">
+          <span class="err">Indique ton téléphone.</span>
+        </label>
+        <label class="field">Courriel
+          <input data-required type="email" value="marc@exemple.ca">
+          <span class="err">Indique ton courriel.</span>
+        </label>
+      </div>
+      <label class="field">Ville et secteur
+        <input data-required type="text" value="Gatineau · Hull">
+        <span class="err">Indique où tu es basé.</span>
+      </label>
+      <fieldset style="border:0;padding:0;margin:0" class="stack">
+        <legend class="small" style="font-weight:600;padding:0;margin-bottom:8px">Langues parlées</legend>
+        <div class="row" style="--gap:16px">
+          <label class="check"><input type="checkbox" checked>Français</label>
+          <label class="check"><input type="checkbox" checked>English</label>
+          <label class="check"><input type="checkbox">Autre</label>
+        </div>
+      </fieldset>
+    </section>
+
+    <!-- Étape 2 -->
+    <section class="stack step" data-step="2" style="--gap:16px;display:none">
+      <h1 style="font-size:clamp(26px,5vw,34px)">Tes services</h1>
+      <label class="field">Métier principal
+        <select data-required id="metier"></select>
+        <span class="err">Choisis ton métier.</span>
+      </label>
+      <label class="field">Zones desservies <span class="hint">Sépare-les par des virgules.</span>
+        <input data-required type="text" value="Hull, Aylmer, Gatineau, Ottawa-Centre">
+        <span class="err">Indique au moins une zone.</span>
+      </label>
+      <div class="stack" style="--gap:8px">
+        <span class="small" style="font-weight:600">Services et tarifs indicatifs</span>
+        <div id="services" class="stack" style="--gap:8px"></div>
+        <button class="btn btn-ghost btn-sm" type="button" id="add-service" style="align-self:flex-start">+ Ajouter un service</button>
+      </div>
+      <label class="field">Présente-toi en 2 phrases
+        <textarea data-required rows="3">Plombier depuis 12 ans. Réparations rapides, installations et urgences.</textarea>
+        <span class="err">Présente-toi en quelques mots.</span>
+      </label>
+    </section>
+
+    <!-- Étape 3 -->
+    <section class="stack step" data-step="3" style="--gap:16px;display:none">
+      <h1 style="font-size:clamp(26px,5vw,34px)">Vérification</h1>
+      <p class="muted">Pour protéger les clients, chaque pro est vérifié par l’équipe Zenviko avant d’être visible.</p>
+      <label class="field">Pièce d’identité <span class="hint">Visible seulement par l’équipe Zenviko.</span>
+        <span class="drop" data-drop><span class="lbl">Ajouter un document</span><input type="file" data-required></span>
+        <span class="err">Ajoute une pièce d’identité (n’importe quel fichier pour la démo).</span>
+      </label>
+      <label class="field">Licence ou carte de compétence <span class="hint">Si ton métier en demande une (ex. : RBQ, CCQ). Facultatif.</span>
+        <span class="drop" data-drop><span class="lbl">Ajouter un document</span><input type="file"></span>
+      </label>
+      <label class="field"><span class="check"><input type="checkbox" data-required>J’accepte les conditions d’utilisation et la vérification de mon profil.</span>
+        <span class="err">Coche la case pour continuer.</span>
+      </label>
+    </section>
+
+    <div class="row" style="--gap:10px">
+      <button class="btn btn-outline" type="button" id="back" style="display:none">Retour</button>
+      <button class="btn btn-dark btn-lg" type="submit" id="next" style="flex:1">Continuer</button>
+    </div>
+  </form>
+</main>
+<div id="site-footer"></div>
+<script src="../assets/data.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+  Z.header(); Z.footer();
+  let step = 1;
+  const form = document.getElementById('form');
+  document.getElementById('metier').innerHTML = '<option value="">Choisir…</option>' + Z.D.categories.map(c => `<option ${c.id === 'plomberie' ? 'selected' : ''}>${Z.esc(c.nom)}</option>`).join('');
+  const svc = (n = '', p = '') => `<div class="two" style="grid-template-columns:1.6fr 1fr"><input aria-label="Service" value="${n}" placeholder="Service" style="height:46px;border-radius:12px;border:1px solid var(--field);padding:0 12px;font-size:16px;min-width:0"><input aria-label="Tarif" value="${p}" placeholder="Tarif" style="height:46px;border-radius:12px;border:1px solid var(--field);padding:0 12px;font-size:16px;min-width:0"></div>`;
+  document.getElementById('services').innerHTML = svc('Réparation de fuite', 'dès 90 $') + svc('Débouchage', 'dès 110 $');
+  document.getElementById('add-service').addEventListener('click', () => document.getElementById('services').insertAdjacentHTML('beforeend', svc()));
+  document.querySelectorAll('[data-drop]').forEach(d => {
+    d.insertAdjacentHTML('afterbegin', Z.icon('upload', 20));
+    d.querySelector('input').addEventListener('change', (e) => { d.querySelector('.lbl').textContent = e.target.files[0] ? e.target.files[0].name : 'Ajouter un document'; });
+  });
+
+  function go(n) {
+    step = n;
+    document.querySelectorAll('.step').forEach(s => s.style.display = Number(s.dataset.step) === n ? '' : 'none');
+    document.querySelectorAll('#steps li').forEach((li, i) => { li.className = i + 1 < n ? 'done' : (i + 1 === n ? 'on' : ''); });
+    document.getElementById('back').style.display = n > 1 ? '' : 'none';
+    document.getElementById('next').textContent = n === 3 ? 'Envoyer ma demande' : 'Continuer';
+    window.scrollTo(0, 0);
+  }
+  document.getElementById('back').addEventListener('click', () => go(step - 1));
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const cur = form.querySelector(`.step[data-step="${step}"]`);
+    if (!Z.validate(cur)) return;
+    if (step < 3) go(step + 1); else location.href = 'envoye.html';
+  });
+</script>
+</body>
+</html>

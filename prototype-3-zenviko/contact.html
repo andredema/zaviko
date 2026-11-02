@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contacter un pro · Zenviko</title>
+<link rel="icon" href="assets/icone.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-base="">
+<div id="site-header"></div>
+<main class="wrap narrow" id="main" style="padding-top:20px;padding-bottom:40px"></main>
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+  Z.header(); Z.footer();
+  const p = Z.pro(Z.param('id')) || Z.D.pros[0];
+  const mode = Z.param('mode') === 'texte' ? 'texte' : 'appel';
+  const main = document.getElementById('main');
+
+  function done(title, text) {
+    main.innerHTML = `
+      <div class="card empty stack" style="--gap:12px;align-items:center">
+        <span class="avatar" style="width:72px;height:72px">${Z.icon('check', 34)}</span>
+        <h1 style="font-size:28px">${title}</h1>
+        <p class="muted" style="max-width:420px">${text}</p>
+        <div class="row" style="justify-content:center">
+          <a class="btn btn-dark" href="suivi.html?code=ZV-4821">Suivre ma demande</a>
+          <a class="btn btn-outline" href="index.html">Retour à l’accueil</a>
+        </div>
+        <p class="xsmall muted">Code de suivi de démonstration : <b>ZV-4821</b></p>
+      </div>`;
+    window.scrollTo(0, 0);
+  }
+
+  main.innerHTML = `
+    <a class="btn btn-ghost btn-sm" href="pro.html?id=${p.id}" style="padding-left:4px">${Z.icon('chevL', 18)}Profil de ${Z.esc(p.prenom)}</a>
+    <section class="card stack" style="--gap:10px;align-items:center;text-align:center;margin-top:10px">
+      ${Z.avatar(p, 84)}
+      <h1 style="font-size:26px">${Z.esc(Z.displayName(p))} · ${Z.esc(p.metier)}</h1>
+      <span class="badge badge-amber"><span class="dot ${Z.D.dispo[p.dispo].dot}"></span>${Z.esc(Z.D.dispo[p.dispo].label)}</span>
+      <p class="display" style="font-size:28px;font-weight:600;letter-spacing:.02em">${Z.esc(p.tel)}</p>
+      <div class="stack" style="--gap:10px;width:100%">
+        <button class="btn btn-primary btn-lg btn-block" type="button" data-proto="Prototype : ton téléphone composerait le ${p.tel}.">${Z.icon('phone', 20)}Appeler maintenant</button>
+        <div class="two">
+          <button class="btn btn-outline" type="button" id="btn-texte">${Z.icon('msg', 18)}Texto</button>
+          <button class="btn btn-outline" type="button" data-proto="Prototype : WhatsApp s’ouvrirait avec ${p.prenom}.">WhatsApp</button>
+        </div>
+      </div>
+    </section>
+
+    <form class="card stack" id="msg-form" style="--gap:12px;margin-top:14px;${mode === 'texte' ? '' : 'display:none'}" novalidate>
+      <h2 style="font-size:20px">Écrire à ${Z.esc(p.prenom)}</h2>
+      <label class="field">Ton message
+        <textarea data-required rows="4">Bonjour ${Z.esc(p.prenom)}, j’aurais besoin de vos services pour…</textarea>
+        <span class="err">Écris quelques mots.</span>
+      </label>
+      <label class="field">Ton numéro ou ton courriel <span class="hint">Pour qu’il te réponde. Partagé seulement avec ce pro.</span>
+        <input data-required type="text" placeholder="819 555-0000">
+        <span class="err">Indique comment te joindre.</span>
+      </label>
+      <button class="btn btn-dark btn-lg" type="submit">Envoyer le message</button>
+    </form>
+
+    <form class="card stack" id="call-form" style="--gap:12px;margin-top:14px;background:var(--mist)" novalidate>
+      <h2 style="font-size:20px">Pas le temps d’appeler ?</h2>
+      <label class="field">Ton numéro, ${Z.esc(p.prenom)} te rappelle
+        <input data-required type="tel" placeholder="819 555-0000">
+        <span class="err">Indique ton numéro.</span>
+      </label>
+      <button class="btn btn-dark" type="submit">Me faire rappeler</button>
+    </form>
+    <p class="xsmall muted center" style="margin-top:14px">Sans compte. Ton numéro n’est partagé qu’avec ce pro.</p>`;
+
+  document.getElementById('btn-texte').addEventListener('click', () => {
+    const f = document.getElementById('msg-form');
+    f.style.display = ''; f.querySelector('textarea').focus();
+  });
+  document.getElementById('msg-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (Z.validate(e.target)) done('Message envoyé', `${Z.esc(p.prenom)} a reçu ton message et te répondra directement. Tu recevras aussi un texto avec ton code de suivi.`);
+  });
+  document.getElementById('call-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (Z.validate(e.target)) done('C’est noté', `${Z.esc(p.prenom)} va te rappeler. ${Z.esc(p.reponse)}.`);
+  });
+</script>
+</body>
+</html>

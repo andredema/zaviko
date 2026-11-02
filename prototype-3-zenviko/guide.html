@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan du prototype · Zenviko</title>
+<link rel="icon" href="assets/icone.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-base="">
+<div id="site-header"></div>
+<main class="wrap" style="padding-top:28px;padding-bottom:40px">
+  <div class="stack" style="--gap:8px;max-width:720px">
+    <h1>Plan du prototype</h1>
+    <p class="muted">Toutes les pages, et ce qu’on peut y tester. Aucune donnée n’est enregistrée : les personnes, numéros (555), avis et prix sont fictifs. Les appels, textos et WhatsApp sont simulés par un message à l’écran.</p>
+  </div>
+
+  <section class="section">
+    <h2 style="margin-bottom:14px">Côté client · sans compte</h2>
+    <div class="grid grid-2" id="client"></div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <h2 style="margin-bottom:14px">Côté prestataire</h2>
+    <div class="grid grid-2" id="pro"></div>
+  </section>
+
+  <section class="section card stack" style="--gap:8px">
+    <h2 style="font-size:22px">Parcours conseillés</h2>
+    <ol class="stack" style="--gap:6px;margin:0;padding-left:20px">
+      <li><b>Urgence :</b> Accueil → « Trouver quelqu’un maintenant » → Plomberie → Appeler Marc.</li>
+      <li><b>Recherche :</b> Accueil → tuile « Aide aux devoirs » → filtre « Parle anglais » → profil d’Aïcha → Devis → Suivi.</li>
+      <li><b>Comparer des devis :</b> Suivre ma demande → code ZV-4821 → Accepter le devis.</li>
+      <li><b>Devenir pro :</b> Je suis pro → 3 étapes → Simuler la validation → Envoyer un devis à une demande.</li>
+    </ol>
+  </section>
+</main>
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+  Z.header(); Z.footer();
+  const card = ([url, t, d]) => `<a class="card stack" href="${url}" style="--gap:4px;color:var(--ink)"><span class="row" style="justify-content:space-between"><b>${t}</b>${Z.icon('arrowR', 18)}</span><span class="small muted">${d}</span></a>`;
+  document.getElementById('client').innerHTML = [
+    ['index.html', 'Accueil', 'Recherche, urgence, catégories, pros libres maintenant.'],
+    ['recherche.html?cat=plomberie&lieu=Gatineau', 'Résultats de recherche', 'Filtres (dispo, langue, note), tri, catégories. Boutons Appeler, Écrire, Devis.'],
+    ['pro.html?id=marc-tremblay', 'Profil public d’un pro', 'Badges, services et tarifs, photos, zones, avis, barre d’actions.'],
+    ['contact.html?id=marc-tremblay&mode=appel', 'Contacter un pro', 'Appel direct, texto, WhatsApp, ou « Me faire rappeler ».'],
+    ['devis.html?pro=aicha-kamga', 'Demande de devis', 'Formulaire express sur une page, avec validation.'],
+    ['suivi.html?code=ZV-4821', 'Suivre ma demande', 'Code reçu par texto, réponses des pros, accepter un devis.'],
+    ['urgence.html', 'Urgence', 'Choix du problème, recherche du premier pro libre.']
+  ].map(card).join('');
+  document.getElementById('pro').innerHTML = [
+    ['pro/inscription.html', 'Inscription en 3 étapes', 'Toi, tes services, vérification (pièce d’identité).'],
+    ['pro/envoye.html', 'Demande envoyée', 'Étapes de validation, puis accès à l’espace.'],
+    ['pro/espace.html?valide=1', 'Espace pro', 'Disponibilité, statistiques, demandes, envoi de devis.'],
+    ['pro/modifier.html', 'Modifier ma page publique', 'Formulaire avec aperçu en direct.']
+  ].map(card).join('');
+</script>
+</body>
+</html>
