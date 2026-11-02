@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zaviko · Trouve qui sait faire</title>
+<link rel="icon" href="assets/icone.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-base="">
+<div id="site-header"></div>
+
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1>Trouve qui sait faire.</h1>
+      <p class="lead">Des pros vérifiés d’Ottawa–Gatineau. Appelle-les directement, sans créer de compte.</p>
+      <form class="search-box" action="recherche.html" method="get">
+        <label>Service
+          <input name="q" type="text" list="services" placeholder="Plombier, ménage, cours de maths…" autocomplete="off">
+          <datalist id="services"></datalist>
+        </label>
+        <label>Où ?
+          <input name="lieu" type="text" value="Gatineau">
+        </label>
+        <button class="btn btn-primary" type="submit"><span id="search-icon"></span>Voir les pros</button>
+      </form>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <section class="section" style="padding-bottom:8px">
+      <div class="urgent">
+        <div class="stack" style="--gap:4px">
+          <h2 style="font-size:22px">Urgence ?</h2>
+          <p class="muted" style="color:var(--ink-2)">Fuite, panne, ordinateur bloqué : on te met en contact avec le premier pro libre près de chez toi.</p>
+        </div>
+        <a class="btn btn-dark btn-lg" href="urgence.html"><span id="urgent-icon"></span>Trouver quelqu’un maintenant</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title"><h2>Catégories</h2><a href="recherche.html">Tout voir</a></div>
+      <div class="tiles" id="tiles"></div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="section-title"><h2>Libres en ce moment</h2><a href="recherche.html?dispo=maintenant">Voir plus</a></div>
+      <div class="grid grid-3" id="now"></div>
+    </section>
+
+    <section class="section how">
+      <h2 style="margin-bottom:16px">Comment ça marche</h2>
+      <div class="grid grid-3">
+        <div class="card stack" style="--gap:6px"><h3>Cherche</h3><p class="muted">Un service, ton quartier. Les pros vérifiés et disponibles apparaissent en premier.</p></div>
+        <div class="card stack" style="--gap:6px"><h3>Contacte directement</h3><p class="muted">Appelle, écris ou demande un devis en un geste. Aucun compte, aucun mot de passe.</p></div>
+        <div class="card stack" style="--gap:6px"><h3>Suis ta demande</h3><p class="muted">Un code reçu par texto te permet de voir les réponses des pros à tout moment.</p></div>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:0">
+      <div class="pro-band">
+        <div class="stack" style="--gap:6px">
+          <h2>Tu as un savoir-faire ?</h2>
+          <p style="color:#E3F4F1">Crée ta page pro gratuite. Après vérification, les clients de ta zone t’appellent directement.</p>
+        </div>
+        <a class="btn btn-light btn-lg" href="pro/inscription.html">Proposer mes services</a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+  Z.header(); Z.footer();
+  document.getElementById('search-icon').outerHTML = Z.icon('search', 18);
+  document.getElementById('urgent-icon').outerHTML = Z.icon('phone', 20);
+  document.getElementById('services').innerHTML = Z.D.categories.map(c => `<option value="${Z.esc(c.nom)}">`).join('');
+  document.getElementById('tiles').innerHTML = Z.D.categories.map(c =>
+    `<a class="tile" href="recherche.html?cat=${c.id}">${Z.icon(c.icon, 26)}${Z.esc(c.nom)}</a>`).join('');
+  document.getElementById('now').innerHTML = Z.D.pros.filter(p => p.dispo === 'maintenant').map(Z.proCard).join('');
+</script>
+</body>
+</html>

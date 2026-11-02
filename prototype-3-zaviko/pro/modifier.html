@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ma page publique · Zaviko Pro</title>
+<link rel="icon" href="../assets/icone.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body data-base="../">
+<div id="site-header"></div>
+<main class="wrap" style="padding-top:24px;padding-bottom:40px">
+  <a class="btn btn-ghost btn-sm" href="espace.html" style="padding-left:4px" id="back">Tableau de bord</a>
+  <h1 style="font-size:clamp(28px,5vw,38px);margin:8px 0 18px">Ma page publique</h1>
+  <div class="profile-layout" style="padding-bottom:0">
+    <form class="card stack" id="form" style="--gap:16px" novalidate>
+      <label class="field">Titre affiché
+        <input id="f-metier" data-required type="text">
+        <span class="err">Indique ton métier.</span>
+      </label>
+      <label class="field">Présentation <span class="hint">2 à 4 phrases. Ce que tu fais, comment tu travailles.</span>
+        <textarea id="f-pres" rows="4" data-required></textarea>
+        <span class="err">Écris une courte présentation.</span>
+      </label>
+      <label class="field">Zones desservies
+        <input id="f-zones" type="text">
+      </label>
+      <label class="field">Délai de réponse affiché
+        <select id="f-rep">
+          <option>Répond en moins d’une heure</option>
+          <option>Répond en quelques heures</option>
+          <option>Répond dans la journée</option>
+        </select>
+      </label>
+      <label class="field">Photos de réalisations
+        <span class="drop"><span class="lbl">Ajouter des photos</span><input type="file" accept="image/*" multiple id="f-photos"></span>
+      </label>
+      <div class="row" style="--gap:10px">
+        <button class="btn btn-dark btn-lg" type="submit" style="flex:1">Enregistrer</button>
+        <a class="btn btn-outline btn-lg" id="view" href="#">Voir ma page</a>
+      </div>
+    </form>
+
+    <aside class="stack sticky-side" style="--gap:8px">
+      <span class="small muted" style="font-weight:600">Aperçu dans les résultats</span>
+      <div id="preview"></div>
+    </aside>
+  </div>
+</main>
+<div id="site-footer"></div>
+<script src="../assets/data.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+  Z.header({ pro: true }); Z.footer();
+  const p = { ...Z.pro(Z.D.espacePro.pro) };
+  document.getElementById('back').insertAdjacentHTML('afterbegin', Z.icon('chevL', 18));
+  document.querySelector('.drop').insertAdjacentHTML('afterbegin', Z.icon('upload', 20));
+  document.getElementById('view').href = `../pro.html?id=${p.id}`;
+  const f = { metier: 'f-metier', presentation: 'f-pres', reponse: 'f-rep' };
+  document.getElementById('f-metier').value = p.metier;
+  document.getElementById('f-pres').value = p.presentation;
+  document.getElementById('f-zones').value = p.zones.join(', ');
+  document.getElementById('f-rep').value = p.reponse;
+
+  function preview() {
+    p.metier = document.getElementById('f-metier').value || '…';
+    p.presentation = document.getElementById('f-pres').value;
+    p.reponse = document.getElementById('f-rep').value;
+    p.zones = document.getElementById('f-zones').value.split(',').map(s => s.trim()).filter(Boolean);
+    document.getElementById('preview').innerHTML = Z.proCard(p) + `
+      <div class="card stack" style="--gap:6px"><b>À propos</b><p class="small" style="color:var(--ink-2)">${Z.esc(p.presentation)}</p>
+      <span class="badge badge-gray" style="align-self:flex-start">${Z.icon('clock', 14)}${Z.esc(p.reponse)}</span></div>`;
+  }
+  document.getElementById('form').addEventListener('input', preview);
+  document.getElementById('form').addEventListener('change', preview);
+  document.getElementById('f-photos').addEventListener('change', (e) => {
+    document.querySelector('.drop .lbl').textContent = e.target.files.length ? `${e.target.files.length} photo(s) sélectionnée(s)` : 'Ajouter des photos';
+  });
+  document.getElementById('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (Z.validate(e.target)) Z.toast('Modifications enregistrées (prototype : elles ne sont pas conservées).');
+  });
+  preview();
+</script>
+</body>
+</html>

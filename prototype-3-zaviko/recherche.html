@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trouver un pro · Zaviko</title>
+<link rel="icon" href="assets/icone.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="assets/styles.css">
+</head>
+<body data-base="">
+<div id="site-header"></div>
+
+<main class="wrap">
+  <section class="section stack" style="--gap:14px;padding-bottom:12px">
+    <form class="row" id="search" style="--gap:8px" role="search">
+      <label class="sr-only" for="q">Service recherché</label>
+      <input id="q" name="q" type="search" placeholder="Que cherches-tu ?" style="flex:1;min-width:180px;height:48px;border-radius:12px;border:1px solid var(--field);padding:0 14px;font-size:16px">
+      <label class="sr-only" for="lieu">Lieu</label>
+      <input id="lieu" name="lieu" type="text" placeholder="Lieu" style="width:150px;height:48px;border-radius:12px;border:1px solid var(--field);padding:0 14px;font-size:16px">
+      <button class="btn btn-dark" type="submit">Chercher</button>
+    </form>
+    <div class="chips" id="cats" aria-label="Catégories"></div>
+  </section>
+
+  <section class="stack" style="--gap:12px;padding-bottom:40px">
+    <div class="row" style="justify-content:space-between">
+      <div class="stack" style="--gap:2px">
+        <h1 id="title" style="font-size:26px">Tous les pros</h1>
+        <span class="small muted" id="count"></span>
+      </div>
+      <label class="row small" style="--gap:8px;font-weight:600">Trier
+        <select id="sort" style="height:42px;border-radius:10px;border:1px solid var(--field);padding:0 10px;background:#fff">
+          <option value="dispo">Disponibilité</option>
+          <option value="note">Meilleures notes</option>
+        </select>
+      </label>
+    </div>
+    <div class="chips" id="filters" aria-label="Filtres">
+      <button class="chip" type="button" aria-pressed="false" data-f="maintenant">Libre maintenant</button>
+      <button class="chip" type="button" aria-pressed="false" data-f="aujourdhui">Disponible aujourd’hui</button>
+      <button class="chip" type="button" aria-pressed="false" data-f="en">Parle anglais</button>
+      <button class="chip" type="button" aria-pressed="false" data-f="note">Note 4,5 et plus</button>
+    </div>
+    <div class="grid grid-2" id="results"></div>
+  </section>
+</main>
+
+<div id="site-footer"></div>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+  Z.header(); Z.footer();
+  const norm = (s) => (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  const state = {
+    cat: Z.param('cat') || '',
+    q: Z.param('q') || '',
+    lieu: Z.param('lieu') || '',
+    f: new Set(Z.param('dispo') === 'maintenant' ? ['maintenant'] : []),
+    sort: 'dispo'
+  };
+  document.getElementById('q').value = state.q;
+  document.getElementById('lieu').value = state.lieu;
+
+  function renderCats() {
+    const all = [{ id: '', nom: 'Toutes' }, ...Z.D.categories];
+    document.getElementById('cats').innerHTML = all.map(c =>
+      `<button class="chip" type="button" data-cat="${c.id}" aria-pressed="${state.cat === c.id}">${Z.esc(c.nom)}</button>`).join('');
+  }
+
+  function render() {
+    let list = Z.D.pros.slice();
+    if (state.cat) list = list.filter(p => p.cat === state.cat);
+    if (state.q) {
+      const q = norm(state.q);
+      list = list.filter(p => {
+        const hay = norm([p.metier, p.prenom, p.nom, Z.cat(p.cat).nom, ...p.services.map(s => s[0])].join(' '));
+        return q.split(/\s+/).some(w => w.length > 2 && hay.includes(w.replace(/s$/, ''))) || hay.includes(q);
+      });
+    }
+    if (state.f.has('maintenant')) list = list.filter(p => p.dispo === 'maintenant');
+    if (state.f.has('aujourdhui')) list = list.filter(p => Z.D.dispo[p.dispo].rang <= 1);
+    if (state.f.has('en')) list = list.filter(p => p.langues.includes('English'));
+    if (state.f.has('note')) list = list.filter(p => Z.note(p) >= 4.5);
+    const near = (p) => state.lieu && norm([p.ville, p.secteur, ...p.zones].join(' ')).includes(norm(state.lieu)) ? 0 : 1;
+    list.sort((a, b) => state.sort === 'note'
+      ? Z.note(b) - Z.note(a)
+      : (near(a) - near(b)) || (Z.D.dispo[a.dispo].rang - Z.D.dispo[b.dispo].rang));
+
+    const c = state.cat ? Z.cat(state.cat).nom : (state.q ? `« ${state.q} »` : 'Tous les pros');
+    document.getElementById('title').textContent = c;
+    document.getElementById('count').textContent =
+      `${list.length} pro${list.length > 1 ? 's' : ''} vérifié${list.length > 1 ? 's' : ''}${state.lieu ? ' · près de ' + state.lieu : ' · Ottawa–Gatineau'}`;
+    document.getElementById('results').innerHTML = list.length ? list.map(Z.proCard).join('') : `
+      <div class="card empty stack" style="--gap:10px;grid-column:1/-1">
+        <h2 style="font-size:22px">Aucun pro ne correspond</h2>
+        <p class="muted">Décris ton besoin : les pros de ta zone te répondront.</p>
+        <div><a class="btn btn-dark" href="devis.html">Faire une demande</a></div>
+      </div>`;
+    document.querySelectorAll('#filters .chip').forEach(b => b.setAttribute('aria-pressed', state.f.has(b.dataset.f)));
+  }
+
+  document.getElementById('cats').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-cat]'); if (!b) return;
+    state.cat = b.dataset.cat; state.q = ''; document.getElementById('q').value = '';
+    renderCats(); render();
+  });
+  document.getElementById('filters').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-f]'); if (!b) return;
+    state.f.has(b.dataset.f) ? state.f.delete(b.dataset.f) : state.f.add(b.dataset.f);
+    render();
+  });
+  document.getElementById('sort').addEventListener('change', (e) => { state.sort = e.target.value; render(); });
+  document.getElementById('search').addEventListener('submit', (e) => {
+    e.preventDefault();
+    state.q = document.getElementById('q').value.trim();
+    state.lieu = document.getElementById('lieu').value.trim();
+    state.cat = ''; renderCats(); render();
+  });
+  renderCats(); render();
+</script>
+</body>
+</html>

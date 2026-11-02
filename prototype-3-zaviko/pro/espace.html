@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mon espace · Zaviko Pro</title>
+<link rel="icon" href="../assets/icone.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body data-base="../">
+<div id="site-header"></div>
+<main>
+  <section class="pro-hero">
+    <div class="wrap stack" style="--gap:6px">
+      <div id="welcome"></div>
+      <h1 style="font-size:clamp(28px,5vw,40px)" id="hello"></h1>
+      <span class="row small ok" style="--gap:6px" id="status"></span>
+    </div>
+  </section>
+
+  <div class="wrap lift stack" style="--gap:18px;padding-bottom:40px">
+    <section class="card stack" style="--gap:14px">
+      <div class="row" style="justify-content:space-between">
+        <div class="stack" style="--gap:2px;min-width:0">
+          <span class="small muted">Ta page publique</span>
+          <b id="url"></b>
+        </div>
+        <label class="row small" style="--gap:10px;font-weight:600">
+          <span id="dispo-label">Disponible maintenant</span>
+          <span class="switch"><input type="checkbox" id="dispo" checked aria-describedby="dispo-label"><span></span></span>
+        </label>
+      </div>
+      <div class="two">
+        <a class="btn btn-outline" id="see" href="#">Voir ma page</a>
+        <button class="btn btn-primary" type="button" id="share">Partager le lien</button>
+      </div>
+    </section>
+
+    <section class="kpis" aria-label="Cette semaine">
+      <div class="kpi"><span class="xsmall muted">Vues de ta page</span><b id="k1"></b></div>
+      <div class="kpi"><span class="xsmall muted">Appels reçus</span><b id="k2"></b></div>
+      <div class="kpi"><span class="xsmall muted">Devis envoyés</span><b id="k3"></b></div>
+    </section>
+
+    <section class="stack" style="--gap:12px">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="font-size:22px">Demandes</h2>
+        <div class="chips" id="tabs">
+          <button class="chip" type="button" data-t="nouveau" aria-pressed="true">Nouvelles</button>
+          <button class="chip" type="button" data-t="devis" aria-pressed="false">Devis envoyés</button>
+          <button class="chip" type="button" data-t="termine" aria-pressed="false">Terminées</button>
+        </div>
+      </div>
+      <div class="grid grid-2" id="leads"></div>
+    </section>
+
+    <section class="card stack" style="--gap:2px">
+      <h2 style="font-size:20px;margin-bottom:6px">Ma page publique</h2>
+      <div class="list-rows" id="edit-links"></div>
+    </section>
+  </div>
+</main>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
+  <form class="sheet stack" id="m-form" style="--gap:14px" novalidate>
+    <div class="row" style="justify-content:space-between">
+      <h2 id="m-title" style="font-size:22px">Envoyer un devis</h2>
+      <button class="btn btn-ghost btn-sm" type="button" id="m-close" aria-label="Fermer"></button>
+    </div>
+    <p class="small muted" id="m-sub"></p>
+    <label class="field">Prix proposé
+      <input data-required id="m-prix" type="text" placeholder="Ex. : 150 $">
+      <span class="err">Indique un prix ou une fourchette.</span>
+    </label>
+    <label class="field">Message au client
+      <textarea rows="3" id="m-msg">Bonjour, je peux passer aujourd’hui vers 15 h. Le prix comprend le déplacement et la main-d’œuvre.</textarea>
+    </label>
+    <button class="btn btn-dark btn-lg" type="submit">Envoyer le devis</button>
+  </form>
+</div>
+
+<div id="site-footer"></div>
+<script src="../assets/data.js"></script>
+<script src="../assets/app.js"></script>
+<script>
+  Z.header({ pro: true }); Z.footer();
+  const E = Z.D.espacePro;
+  const p = Z.pro(E.pro);
+  const leads = E.demandes.map(d => ({ ...d }));
+  let tab = 'nouveau', current = null;
+
+  if (Z.param('valide')) document.getElementById('welcome').innerHTML =
+    `<span class="badge" style="background:var(--amber);color:var(--ink)">Nouveau · ton profil vient d’être validé</span>`;
+  document.getElementById('hello').textContent = `Bonjour ${p.prenom}`;
+  document.getElementById('status').innerHTML = `${Z.icon('check', 16)}Profil validé · visible par le public`;
+  document.getElementById('url').textContent = `zaviko.ca/${p.id}`;
+  document.getElementById('see').href = `../pro.html?id=${p.id}`;
+  document.getElementById('k1').textContent = E.vues;
+  document.getElementById('k2').textContent = E.appels;
+  document.getElementById('k3').textContent = E.devis;
+  document.getElementById('m-close').innerHTML = Z.icon('x', 20);
+  document.getElementById('edit-links').innerHTML = [
+    ['Infos et présentation', 'edit'], ['Services et tarifs', 'file'], ['Photos de réalisations', 'upload'], ['Zones et disponibilités', 'pin']
+  ].map(([t, i]) => `<a href="modifier.html" style="color:var(--ink);min-height:48px"><span class="row" style="--gap:10px">${Z.icon(i, 18)}${t}</span>${Z.icon('chevR', 18)}</a>`).join('');
+
+  document.getElementById('dispo').addEventListener('change', (e) => {
+    document.getElementById('dispo-label').textContent = e.target.checked ? 'Disponible maintenant' : 'Indisponible';
+    Z.toast(e.target.checked ? 'Tu apparais en tête des recherches « Urgence ».' : 'Tu n’apparais plus dans les recherches « Urgence ».');
+  });
+  document.getElementById('share').addEventListener('click', () => Z.toast(`Lien copié : zaviko.ca/${p.id}`));
+
+  const label = { nouveau: ['Nouveau', 'st-new'], devis: ['Devis envoyé', 'st-sent'], termine: ['Terminé', 'st-done'] };
+  function render() {
+    document.querySelectorAll('#tabs .chip').forEach(b => {
+      const n = leads.filter(l => l.statut === b.dataset.t).length;
+      b.setAttribute('aria-pressed', b.dataset.t === tab);
+      b.textContent = `${{ nouveau: 'Nouvelles', devis: 'Devis envoyés', termine: 'Terminées' }[b.dataset.t]} (${n})`;
+    });
+    const list = leads.filter(l => l.statut === tab);
+    document.getElementById('leads').innerHTML = list.length ? list.map(l => `
+      <article class="card stack" style="--gap:10px">
+        <div class="row" style="justify-content:space-between;flex-wrap:nowrap;align-items:flex-start">
+          <b>${Z.esc(l.titre)}</b><span class="status ${label[l.statut][1]}">${label[l.statut][0]}</span>
+        </div>
+        <span class="small muted">${Z.esc(l.lieu)} · ${Z.esc(l.quand)}<br>${Z.esc(l.client)}${l.prix ? ' · devis ' + Z.esc(l.prix) : ''}</span>
+        ${l.statut === 'termine' ? '' : `<div class="two">
+          <button class="btn btn-primary btn-sm" type="button" data-call="${l.tel}">${Z.icon('phone', 16)}Rappeler</button>
+          ${l.statut === 'nouveau'
+            ? `<button class="btn btn-outline btn-sm" type="button" data-quote="${l.id}">Envoyer un devis</button>`
+            : `<button class="btn btn-outline btn-sm" type="button" data-done="${l.id}">Marquer terminé</button>`}
+        </div>`}
+      </article>`).join('') : `<div class="card muted" style="grid-column:1/-1">Rien ici pour l’instant.</div>`;
+  }
+
+  document.getElementById('tabs').addEventListener('click', (e) => { const b = e.target.closest('[data-t]'); if (b) { tab = b.dataset.t; render(); } });
+  document.getElementById('leads').addEventListener('click', (e) => {
+    const call = e.target.closest('[data-call]'), q = e.target.closest('[data-quote]'), d = e.target.closest('[data-done]');
+    if (call) Z.toast(`Prototype : ton téléphone composerait le ${call.dataset.call}.`);
+    if (q) {
+      current = leads.find(l => l.id === q.dataset.quote);
+      document.getElementById('m-sub').textContent = `${current.titre} · ${current.lieu}`;
+      document.getElementById('m-prix').value = '';
+      document.getElementById('modal').classList.add('open');
+      document.getElementById('m-prix').focus();
+    }
+    if (d) { leads.find(l => l.id === d.dataset.done).statut = 'termine'; render(); Z.toast('Le client recevra un texto pour laisser un avis.'); }
+  });
+  const close = () => document.getElementById('modal').classList.remove('open');
+  document.getElementById('m-close').addEventListener('click', close);
+  document.getElementById('modal').addEventListener('click', (e) => { if (e.target.id === 'modal') close(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') close(); });
+  document.getElementById('m-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (!Z.validate(e.target)) return;
+    current.statut = 'devis'; current.prix = document.getElementById('m-prix').value;
+    close(); render(); Z.toast('Devis envoyé. Le client le voit dans son suivi.');
+  });
+  render();
+</script>
+</body>
+</html>
